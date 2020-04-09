@@ -20,6 +20,9 @@ const update = async (interval) => {
 		if (res.state == 1) { tableData[res.id].state.style.color = "#7fff7f"}
 		else { tableData[res.id].state.style.color = "red"}
 
+		let date = new Date(initialResponse.lastUpdated)
+		document.getElementById("lastUpdated").innerHTML = `Last updated: ${date.toString()}`
+
 	})
 	
 	setInterval(async () => {
@@ -38,6 +41,9 @@ const update = async (interval) => {
 			
 		})
 		
+		let date = new Date(intResponse.lastUpdated)
+		document.getElementById("lastUpdated").innerHTML = `Last updated: ${date.toString()}`
+
 		console.log("Updated")
 		
 	}, interval)

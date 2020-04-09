@@ -54,7 +54,7 @@ app.get("/api/status", (req, res) => {
 				
 			})
 			
-			res.send(serversList)
+			res.send({servers: serversList, lastUpdated})
 			
 		}
 	
