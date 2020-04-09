@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{{web.displayName}}</title>
+		<link rel="stylesheet" type="text/css" href="css/index.css">
+		<script src="js/index.js"></script>
+		<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@900&display=swap" rel="stylesheet">
+		<link rel="icon" type="image/png" href="img/favicon.ico">
+	</head>
+	<body>
+		<div class="parent">
+			<div class="header">
+				<h1>
+					{{web.displayName}}
+				</h1>
+			</div>
+			<div class="status"> 
+				<table id="statusTable">
+					<tr id="tableHeader">
+						<th>Name</th>
+						<th>Description</th>
+						<th>State</th>
+					</tr>
+				</table>
+			</div>
+			<div class="footer"> 
+				<div class="footLeft"> 
+					<p>
+						Updating every: {{update}}s
+					</p>
+					<p>
+						Running version: v{{web.version}}
+					</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

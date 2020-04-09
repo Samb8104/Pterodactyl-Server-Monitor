@@ -1,0 +1,24 @@
+{
+	"updateInterval": 60000,
+	"panelDomain": "",
+	"apiKey": "",
+	"apiKeyClient": "",
+	"mysql": {
+		
+		"connectionLimit": 10,
+		"host": "",
+		"user": "",
+		"password": "",
+		"database": ""
+		
+	},
+	"servers": [
+	],
+	"web": {
+		
+		"port": 8000,
+		"displayName": "",
+		"version": "1.0.1"
+		
+	}
+}
