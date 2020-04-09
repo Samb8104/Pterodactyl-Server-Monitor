@@ -20,5 +20,18 @@
 		"displayName": "",
 		"version": "1.0.1"
 		
+	},
+	"descriptionOverride": {
+		
+		"enabled": false,
+		"servers": [
+			
+			{
+				"id": "example",
+				"replacement": "This is overridden"
+			}
+			
+		]
+		
 	}
 }

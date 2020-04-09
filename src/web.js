@@ -35,7 +35,22 @@ app.get("/api/status", (req, res) => {
 			
 			results.forEach(result => {
 				
-				serversList.push({ id: result.id, name: result.name, description: result.description, state: result.state })
+				//Override description if enabled
+				if (config.descriptionOverride.enabled == true) {
+					
+					config.descriptionOverride.servers.forEach(server => {
+								
+						if (server.id == result.id) { result.description = server.replacement }
+								
+					})
+							
+					serversList.push({ id: result.id, name: result.name, description: result.description, state: result.state })
+							
+				} else {
+							
+					serversList.push({ id: result.id, name: result.name, description: result.description, state: result.state })
+							
+				}
 				
 			})
 			
