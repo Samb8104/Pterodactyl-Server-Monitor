@@ -17,6 +17,13 @@ let headers = {
 
 }
 
+//Create table if it doesn't exist already
+pool.query(`CREATE TABLE IF NOT EXISTS current (id VARCHAR(20) NOT NULL, name VARCHAR(200) NOT NULL, description VARCHAR(500) NOT NULL, state BOOLEAN NOT NULL)`, (error, results, fields) => {
+
+	if (error) { console.log(`[Updater] ${error}`)}
+
+})
+
 try {
 	
 	request({ url: `https://${config.panelDomain}/api/application/servers`, headers }, (error, response, body) => {

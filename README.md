@@ -3,11 +3,10 @@
 ## Installation
 1. In config.json fill in the required pterodactyl details (panel URL, admin API key, client API key)
 2. Next fill out the MySQL details and the database you are using
-3. Create a table in that database called "current"
-4. Add the IDs of all the servers you want to monitor in the servers list
-5. Under the web object you can change the port you want the webserver to run on
-6. Change the displayName to what you want the title of the page to be
-7. Install dependancies with `npm i`
+3. Add the IDs of all the servers you want to monitor in the servers list
+4. Under the web object you can change the port you want the webserver to run on
+5. Change the displayName to what you want the title of the page to be
+6. Install dependancies with `npm i`
 
 ## Overriding descriptions
 1. Enable description overriding in config.json
