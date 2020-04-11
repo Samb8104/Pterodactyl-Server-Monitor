@@ -27,5 +27,5 @@ server {
   }
 }
 ```
-4. Enable this virtualhost file by running: ln -s {filename} /etc/nginx/sites-enabled/
+4. Enable this virtualhost file by running: ln -s /etc/nginx/{filename} /etc/nginx/sites-enabled/
 5. Restart nginx `service nginx restart`
