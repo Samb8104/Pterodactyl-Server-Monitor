@@ -85,6 +85,8 @@ try {
 	//Remove servers from the table if they are not in the configs
 	pool.query("SELECT id FROM current WHERE 1 = 1", (error, results, fields) => {
 		
+		if (typeof results == "undefined" || typeof results == "null")  { results = [] } 
+		
 		let toRemove = results.filter(result => {
 			
 			if (!config.servers.includes(result.id)) { return true }
