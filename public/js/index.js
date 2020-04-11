@@ -4,7 +4,7 @@ const update = async (interval) => {
 	let initialResponse = await initialUpdate.json();
 	let tableData = {}
 	
-	initialResponse.forEach((res, index, array) => {
+	initialResponse.servers.forEach((res, index, array) => {
 		
 		let table = document.getElementById("statusTable");
 		
@@ -30,7 +30,7 @@ const update = async (interval) => {
 		let intUpdate = await fetch("/api/status");
 		let intResponse = await intUpdate.json();
 		
-		intResponse.forEach((res) => {
+		intResponse.servers.forEach((res) => {
 			
 			tableData[res.id].name.innerHTML = `${res.name}`
 			tableData[res.id].description.innerHTML = `${res.description}`
