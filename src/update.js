@@ -1,6 +1,7 @@
 const mysql = require("mysql")
 const request = require("request")
 const config = require("../config.json")
+const Webhook = require("./discord.js")
 
 //Create mysql pool
 let pool = mysql.createPool(config.mysql)
@@ -141,6 +142,30 @@ try {
 				else {
 
 					let server = JSON.parse(body)
+
+					//Check if the state has changed (discord webhook)
+					if (config.webhook.enabled) {
+
+						pool.query(`SELECT state FROM current WHERE id = '${id}'`, (error, results, fields) => { //This doesnt need to be managed into the flow as it has no dependants
+							if (error) { console.log(`[Webhook] ${error}`)}
+							else {
+								if (results[0].state != (server.attributes.state == "on" ? 1 : 0)) {
+									//Send a webhook saying state changed
+									Webhook.sendUpdate({
+										state: server.attributes.state, 
+										name: id,
+										memUse: server.attributes.memory.current, 
+										memCap: server.attributes.memory.limit,
+										cpuUse: server.attributes.cpu.current,
+										cpuCap: server.attributes.cpu.limit,
+										diskUse: server.attributes.disk.current,
+										diskCap: server.attributes.disk.limit
+									})
+								}
+							}
+						})
+
+					}
 
 					//Update each record with state
 					pool.query(`UPDATE current SET state = ${server.attributes.state == "on" ? 1 : 0} WHERE id = '${id}'`, (error, results, fields) => {

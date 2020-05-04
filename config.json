@@ -12,13 +12,16 @@
 		"database": ""
 		
 	},
+	"webhook": {
+		"enabled": true
+	},
 	"servers": [
 	],
 	"web": {
 		
 		"port": 8000,
 		"displayName": "Example",
-		"version": "1.0.3"
+		"version": "1.0.4"
 		
 	},
 	"descriptionOverride": {
