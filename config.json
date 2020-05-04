@@ -12,9 +12,6 @@
 		"database": ""
 		
 	},
-	"webhook": {
-		"enabled": true
-	},
 	"servers": [
 	],
 	"web": {
