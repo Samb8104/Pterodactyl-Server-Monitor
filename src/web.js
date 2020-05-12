@@ -3,6 +3,7 @@ const express = require("express")
 const config = require("../config.json")
 const hbs = require("hbs")
 const path = require("path")
+const packageJson = require("../package.json")
 
 //Create mysql pool
 let pool = mysql.createPool(config.mysql)
@@ -65,7 +66,7 @@ app.get("/api/status", (req, res) => {
 //Main status page
 app.get("/", (req, res) => {
 	
-	res.render("index.hbs", {web: config.web, update: config.updateInterval / 1000})
+	res.render("index.hbs", {web: config.web, version: packageJson.version, update: config.updateInterval / 1000})
 	
 })
 
