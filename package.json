@@ -1,10 +1,11 @@
 {
   "name": "pterodactyl-server-monitor",
-  "version": "1.0.1",
+  "version": "1.0.5",
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "setup": "npm i && pip install mcstatus"
   },
   "repository": {
     "type": "git",
