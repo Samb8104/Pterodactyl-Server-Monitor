@@ -1,97 +1,49 @@
-const mysql = require("mysql")
-const express = require("express")
-const config = require("../config.json")
-const hbs = require("hbs")
-const path = require("path")
-const packageJson = require("../package.json")
+const express = require("express");
+const config = require("../config.json");
+const packageJson = require("../package.json");
+const hbs = require("hbs");
+const path = require("path");
+const app = express();
 
-//Create mysql pool
-let pool = mysql.createPool(config.mysql)
-let lastUpdated = 0
+const Sql = require("./utils/sql.js");
+const Log = require("./utils/log.js");
 
-process.send("[Web] Started")
+const Logger = new Log();
+const sql = new Sql();
+let lastUpdated = 0;
 
-const app = express()
-
-const viewsPath = path.join(__dirname, "../templates/views")
-
+//Configure express to use hbs and serve files
 app.set("view engine", "hbs")
-app.set("views", viewsPath)
+app.set("views", path.join(__dirname, "../templates/views"))
 app.use(express.static(path.join(__dirname, "../public")))
 
-//Status page api
-app.get("/api/status", (req, res) => {
-	
-	pool.query("SELECT * FROM current WHERE 1=1;", (error, results, fields) => {
-	
-		if (error) { 
-		
-			console.log(`[Web] Error: ${error}`)
-			res.send({ error: true })
-			
-		}
-		else {
-			
-			let serversList = []
-			
-			results.forEach(result => {
-				
-				//Override description if enabled
-				if (config.descriptionOverride.enabled == true) {
-					
-					config.descriptionOverride.servers.forEach(server => {
-								
-						if (server.id == result.id) { result.description = server.replacement }
-								
-					})
-							
-					serversList.push({ id: result.id, name: result.name, description: result.description, state: result.state })
-							
-				} else {
-							
-					serversList.push({ id: result.id, name: result.name, description: result.description, state: result.state })
-							
-				}
-				
-			})
-			
-			res.send({servers: serversList, lastUpdated})
-			
-		}
-	
-	})
-		
-})
+//API router
+const apiRouter = require("./routes/api.js");
+app.use(apiRouter);
 
-//Main status page
+//Status page
 app.get("/", (req, res) => {
 	
-	res.render("index.hbs", {web: config.web, version: packageJson.version, update: config.updateInterval / 1000})
+	res.render("index.hbs", {
+        web: config.web, 
+        version: packageJson.version, 
+        update: config.updateInterval / 1000
+    })
 	
 })
 
+//Manage IPC messages from app.js
 process.on("message", (message) => {
-	
-	let args = message.split(":")
-	
+	let args = message.split(":");
 	switch(args[0]) {
-			
 		case "updated":
-			lastUpdated = parseInt(args[1])
+			lastUpdated = parseInt(args[1]);
 			break;
-			
 		case "shutdown":
-			
-			pool.end((err) => {
-				
-				app.close()
-				
-				process.exit(0)
-				
-			})
+			sql.close();
+			process.exit(0);
 			break;
 	}
-	
 })
 
 //Begin listening
