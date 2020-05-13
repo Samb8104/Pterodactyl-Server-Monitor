@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "setup": "npm i && pip install mcstatus"
+    "setup": "npm i"
   },
   "repository": {
     "type": "git",
