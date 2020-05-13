@@ -1,186 +1,88 @@
-const mysql = require("mysql")
-const request = require("request")
-const config = require("../config.json")
+const config = require("../config.json");
 
-//Create mysql pool
-let pool = mysql.createPool(config.mysql)
+const Log = require("./utils/log.js");
+const Sql = require("./utils/sql.js");
+const Req = require("./utils/req.js");
 
-//Signal that updater child has started
-process.send("[Updater] Started")
+const Logger = new Log();
+const sql = new Sql();
+const Request = new Req();
 
-//Initial read of server details
-let headers = { 
-	
-	"Authorization": `Bearer ${config.apiKey}`,
-	"Content-Type": "application/json",
-	"Accept": "Application/vnd.pterodactyl.v1+json"
+Logger.info("update", "Started")
 
-}
+//Validate tables
+sql.init().then((resolve) => {
 
-//Create table if it doesn't exist already
-pool.query(`CREATE TABLE IF NOT EXISTS current (id VARCHAR(20) NOT NULL, name VARCHAR(200) NOT NULL, description VARCHAR(500) NOT NULL, state BOOLEAN NOT NULL)`, (error, results, fields) => {
-
-	if (error) { console.log(`[Updater] ${error}`)}
-
-})
-
-try {
-	
-	request({ url: `https://${config.panelDomain}/api/application/servers`, headers }, (error, response, body) => {
-
-		if (error) { console.log(`[Updater] ${error}`) }
-		else {
-
-			//Check if details about servers defined in config are already set/update
-			JSON.parse(body).data.forEach((record) => {
-
-				config.servers.forEach((id) => {
-
-					//If found
-					if (record.attributes.identifier == id) {
-
-						//Check if it already exists in table
-						pool.query(`SELECT EXISTS(SELECT * FROM current WHERE id = '${id}')`, (error, results, fields) => {
-
-							if (error) { console.log(`[Updater] ${error}`)}
-							else {
-
-								//If it doesnt exist create record in table
-								if (results[0][fields[0].name] == 0) {
-
-									pool.query(`INSERT INTO current values('${id}', '${record.attributes.name}', '${record.attributes.description}', 0)`, (error, results, fields) => {
-
-										if (error) { console.log(`[Updater] ${error}`)}
-										else {
-
-											console.log(`[Updater] Created new record for ${id}`)
-
-										}
-
-									})
-
-								//Else update the record
-								} else {
-
-									pool.query(`UPDATE current SET name = '${record.attributes.name}', description = '${record.attributes.description}', state = 0 WHERE id = '${id}'`, (error, results, fields) => {
-
-										if (error) { console.log(`[Updater] ${error}`)}
-										else {
-
-											console.log(`[Updater] Updated server record ${id}`)
-
-										}
-
-									})
-
-								}
-							}
-
-						})
-
-					}
-
-				})
-
-			})
-
-		}
-
-
-	})
-	
-	//Remove servers from the table if they are not in the configs
-	pool.query("SELECT id FROM current WHERE 1 = 1", (error, results, fields) => {
+	//Get servers
+	Request.getServers().then(async (resolve) => {
 		
-		if (typeof results == "undefined" || typeof results == "null")  { results = [] } 
-		
-		let toRemove = results.filter(result => {
-			
-			if (!config.servers.includes(result.id)) { return true }
-			
-		})
-		
-		//If there are some to remove - remove them
-		if (toRemove.length > 0) {
-			
-			toRemove.forEach(record => {
-				
-				pool.query(`DELETE FROM current WHERE id = '${record.id}'`, (error, results, fields) => {
-					
-					if (error) { console.log(`[Updater] ${error}`)} else {
-						
-						console.log(`[Updater] Removed server ${record.id} from database`)
-						
-					}
-					
-				})
-				
-			})
-			
-		}
-		
-	})
-
-	let clientHeaders = { 
-
-		"Authorization": `Bearer ${config.apiKeyClient}`,
-		"Content-Type": "application/json",
-		"Accept": "Application/vnd.pterodactyl.v1+json"
-
-	}
-	
-	//Begin the updater interval
-	const clock = setInterval(() => {
-
-		//For each server is defined get state and update tables
-		config.servers.forEach(id => {
-
-			request({ url: `https://${config.panelDomain}/api/client/servers/${id}/utilization`, headers: clientHeaders}, (error, response, body) => {
-
-				if (error) { console.log(`[Updater] ${error}`)}
-				else {
-
-					let server = JSON.parse(body)
-
-					//Update each record with state
-					pool.query(`UPDATE current SET state = ${server.attributes.state == "on" ? 1 : 0} WHERE id = '${id}'`, (error, results, fields) => {
-
-						if (error) { console.log(`[Updater] ${error}`)}
-
+		//Add/Update each server if in config
+		resolve.forEach(server => {
+			config.servers.forEach(async (confServer) => {
+				if (server.attributes.identifier == confServer) {	
+					sql.selectExist("current", confServer).then(async (resolve) => {
+						if (!resolve) {
+							//Add if not in database
+							await sql.add("current", {confServer, name: server.attributes.name, description: server.attributes.description, state: "0"});
+						} else {
+							//Update the existing record
+							await sql.updateRecord("current", {confServer, id: confServer, name: server.attributes.name, description: server.attributes.description, state: "0"});
+						}
+					}, (reject) => {
+						Logger.error("sql", "none", "Failed to check record exisence");
 					})
 				}
-
 			})
-
 		})
-		
-		process.send("updated")
 
-	}, config.updateInterval)
+		//Remove servers that aren't in the config
+		await sql.syncConfig();
 
-} catch (error) {
-	
-	console.log(`[Updater] ${error}`)
-	
-}
-
-//Message handler from parent to gracefully shutdown
-process.on("message", (message) => {
-	
-	let args = message.split(":")
-	
-	switch(args[0]) {
-			
-		case "shutdown":
-			
-			pool.end((err) => {
-				
-				clearInterval(clock)
-				
-				process.exit(0)
-				
+		//Carry out initial status check so we have some initial results
+		//Get state of each server in config
+		const statusCheck = () => {
+			config.servers.forEach(async (confServer) => {
+				Request.getUtilization(confServer).then((resolve) => {
+					sql.setState(confServer, (JSON.parse(resolve).attributes.state == "on" ? 1 : 0));
+				}, (reject) => {
+					Logger.error("update", "none", `Failed to fetch state of ${confServer}`);
+				})
 			})
-			break;
-	}
-	
+		}
+
+		statusCheck();
+
+		//Begin updater clock
+		const updateClock = setInterval(() => { statusCheck() }, config.updateInterval)
+
+	}, (reject) => {
+		Logger.error("update", "none", "Failed to fetch servers, cannot contune");
+		process.exit(1)
+	})
+
+}, (reject) => {
+	Logger.error("update", "none", "Failed to validate, cannot continue");
+	process.exit(1);
 })
+
+
+// //Message handler from parent to gracefully shutdown
+// process.on("message", (message) => {
+	
+// 	let args = message.split(":")
+	
+// 	switch(args[0]) {
+			
+// 		case "shutdown":
+			
+// 			pool.end((err) => {
+				
+// 				clearInterval(clock)
+				
+// 				process.exit(0)
+				
+// 			})
+// 			break;
+// 	}
+	
+// })
