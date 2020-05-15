@@ -1,5 +1,5 @@
 {
-	"updateInterval": 60000,
+	"updateInterval": 30000,
 	"panelDomain": "",
 	"apiKey": "",
 	"apiKeyClient": "",
@@ -12,26 +12,12 @@
 		"database": ""
 		
 	},
-	"servers": [
-	],
 	"web": {
 		
 		"port": 8000,
-		"displayName": "Example",
-		"version": "1.0.4"
+		"displayName": "Example"
 		
 	},
-	"descriptionOverride": {
-		
-		"enabled": false,
-		"servers": [
-			
-			{
-				"id": "example",
-				"replacement": "This is overridden"
-			}
-			
-		]
-		
-	}
+	"servers": [
+	]
 }
