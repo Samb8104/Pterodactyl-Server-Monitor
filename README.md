@@ -2,20 +2,30 @@
 
 ## Prerequisites
 - Node.js >= 10.X
-- Python >= 2.7
 - SQL Server running with a user with access to the database used 
+- npm
+
+Please note: Pterodactyl server monitor has currently been tested on:
+- Ubuntu 16
+- Ubuntu 18
 
 ## Installation
 1. In config.json fill in the required pterodactyl details (panel URL, admin API key, client API key)
 2. Next fill out the MySQL details and the database you are using
-3. Add the IDs of all the servers you want to monitor in the servers list
-4. Under the web property you can change the port you want the webserver to run on
-5. Change the displayName to what you want the title of the page to be
-6. Install dependancies with `npm i`
+3. Under the web property you can change the port you want the webserver to run on
+4. Change the displayName to what you want the title of the page to be
+5. Finally run `npm run setup`
 
-## Overriding descriptions
-1. Enable description overriding in config.json
-2. In the servers list, add the id of the server you want to override with the replacement being what you want the description to be replaced with
+## Adding servers to the config
+1. For each server you want to add, create an object in the config
+2. The minimum you need for a server to be displayed is its pterodactyl id, which you can add with the property `id: "myid"`
+3. If you wish to override the description that is fetched from pterodactyl, set the decription property to a message of your choosing `description: "mydesc"`
+4. To enable server querying to get information such as players and server version simply add the property `queryInfo: true` and set it to true
+5. Querying also requires you to have 2 additional settings which is the `queryAddress: "xxx.xxx.xxx.xxx"` and `queryPort: "xxxxx"` which should both my self explanatory
+6. The final step is to make sure querying is enabled on the server you wish to query
+
+To start the application once everything is setup, please run `npm start`
+For support, join my [discord](https://discord.gg/F63Kafe)
 
 ## Using a reverse proxy with NGINX (ubuntu)
 1. Make sure nginx is installed
