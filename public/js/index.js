@@ -51,7 +51,7 @@ const update = () => {
 				else { tableData[res.id].state.style.color = "red"}
 				
 				let date = new Date();
-				document.getElementById("lastUpdated").innerHTML = `Last updated: ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} @ [${date.getHours() + 1}:${date.getMinutes() + 1}:${date.getSeconds() + 1}]`
+				document.getElementById("lastUpdated").innerHTML = `Last updated: ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} @ [${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}]`
 			})
 			if (intResponse.queryEnabled) {
 				intResponse.query.forEach((query, index, array) => {
