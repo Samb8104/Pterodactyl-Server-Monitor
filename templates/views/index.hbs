@@ -20,6 +20,8 @@
 						<th>Name</th>
 						<th>Description</th>
 						<th>State</th>
+						<th>Online</th>
+						<th>Version</th>
 					</tr>
 				</table>
 			</div>
@@ -38,4 +40,11 @@
 			</div>
 		</div>
 	</body>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		const socket = io();
+		update()
+
+		socket.on("update", () => { update() })
+	</script>
 </html>

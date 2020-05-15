@@ -60,6 +60,7 @@ body {
 
 .footer { 
 	grid-area: 5 / 1 / 6 / 6; 
+	vertical-align: bottom;
 }
 
 .footLeft { 
