@@ -128,7 +128,7 @@ class Req {
                             let elapsedDiff = process.hrtime(elapsedStart);
                             let took = Math.floor(((elapsedDiff[0] * 1e9 + elapsedDiff[1]) / 1000)/ 1000);
     
-                            Logger.info("request", `Fetched server utilization from pterodactyl (${response.headers['x-ratelimit-limit']}/${response.headers['x-ratelimit-limit']}) Took ${took}ms`);
+                            Logger.info("request", `Fetched server utilization from pterodactyl (${response.headers['x-ratelimit-remaining']}/${response.headers['x-ratelimit-limit']}) Took ${took}ms`);
                             let data = body;
                             resolve(data);
                         }
